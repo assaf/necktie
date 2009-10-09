@@ -4,3 +4,11 @@ def fix_file(file, &block)
     out.write text
   end
 end
+
+def touch(name)
+  if File.exist?(name)
+    File.utime time = Time.now, time, "foo"
+  else
+    File.open(name, "a").close
+  end
+end
