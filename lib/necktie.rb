@@ -26,7 +26,7 @@ def necktie(args)
   repo = File.expand_path(".necktie")
   if File.exist?(repo)
     puts "  * Pulling latest updates to #{repo}"
-    system "cd #{repo.inspect} && git pull #{repo.inspect} #{ENV["branch"] || "master"}" or fail
+    system "cd #{repo.inspect} && git pull origin #{ENV["branch"] || "master"}" or fail
   else
     puts "  * Cloning #{git_url} to #{repo}"
     system "git clone #{git_url} #{repo.inspect}" or fail
@@ -35,7 +35,7 @@ def necktie(args)
   Dir.chdir repo do
     executed = File.exist?(etc) ? File.read(etc).split("\n") : []
     roles.each do |role|
-      tasks = Dir["tasks/#{role}/*.rb"].map { |name| File.basename(name).gsub(/(.*)\.rb$/, "#{role}/\\1") }
+      tasks = Dir["tasks/#{role}/*.rb"].sort.map { |name| File.basename(name).gsub(/(.*)\.rb$/, "#{role}/\\1") }
       todo = tasks - executed
       if tasks.empty?
         puts "  * No tasks for role #{role}"
