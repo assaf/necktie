@@ -1,0 +1,30 @@
+== Using Necktie from Capistrano
+
+I have a Capistrano task that will setup a new instance, or upgrade existing one.
+I run deploy (or deploy:cold) immediately after the setup task, which looks like this:
+
+  # Copy Gem over so not depending on gem server being online, and all servers get
+  # to use the same version of Necktie.
+  gem_spec = Gem::SourceIndex.from_installed_gems.find_name("necktie").last
+  gem_file = File.join(Gem.dir, "cache", spec.file_name)
+  upload gem_file, File.basename(gem_file), :via=>:scp
+  sudo "gem install #{File.basename(gem_file)}"
+  # Run Necktie as sudo.
+  sudo "necktie #{necktie_git} app env=#{env}"
+
+See also file extra/capistrano/necktie.rb.
+
+
+== License
+
+Necktie
+Copyright (C) 2009 Assaf Arkin
+Released under the "Use for good, not evil" license (http://www.json.org/license.html)
+
+Includes Rush, created by Adam Wiggins and released under the MIT License
+http://rush.heroku.com/
+http://github.com/adamwiggins/rush
+
+Includes Session, created by Ara T. Howard and released under the Ruby License
+http://raa.ruby-lang.org/project/session
+http://www.codeforpeople.com/lib/ruby/session/
