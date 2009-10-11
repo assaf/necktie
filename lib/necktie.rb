@@ -4,8 +4,6 @@ require "necktie/gems"
 require "necktie/services"
 require "necktie/rush"
 
-puts launch_dir
-exit!
 
 def necktie(args)
   etc = "/etc/necktie"
