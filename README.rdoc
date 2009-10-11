@@ -17,9 +17,7 @@ See also file extra/capistrano/necktie.rb.
 
 == License
 
-Necktie<br>
-Copyright (C) 2009 Assaf Arkin<br>
-Released under the "Use for good, not evil" license (http://www.json.org/license.html)
+Necktie, copyright (C) 2009 Assaf Arkin, released under the "Use for good, not evil" license (http://www.json.org/license.html)
 
 Includes Rush, created by Adam Wiggins and released under the MIT License
 http://rush.heroku.com
