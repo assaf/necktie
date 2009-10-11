@@ -17,14 +17,14 @@ See also file extra/capistrano/necktie.rb.
 
 == License
 
-Necktie
-Copyright (C) 2009 Assaf Arkin
+Necktie<br>
+Copyright (C) 2009 Assaf Arkin<br>
 Released under the "Use for good, not evil" license (http://www.json.org/license.html)
 
 Includes Rush, created by Adam Wiggins and released under the MIT License
-http://rush.heroku.com/
+http://rush.heroku.com
 http://github.com/adamwiggins/rush
 
 Includes Session, created by Ara T. Howard and released under the Ruby License
 http://raa.ruby-lang.org/project/session
-http://www.codeforpeople.com/lib/ruby/session/
+http://www.codeforpeople.com/lib/ruby/session
