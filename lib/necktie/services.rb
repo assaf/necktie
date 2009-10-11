@@ -27,7 +27,7 @@ module Services
   end
 
   def self.status(name)
-    status = File.read("|sudo service --status-all 2>&1")[/^ \[ (.) \]  #{Regexp.escape name}$/,1]
-    stauts == "+" ? true : status == "-" ? false : nil
+    status = File.read("|service --status-all 2>&1")[/^ \[ (.) \]  #{Regexp.escape name}$/,1]
+    status == "+" ? true : status == "-" ? false : nil
   end
 end
