@@ -2,7 +2,10 @@ require "fileutils"
 extend FileUtils
 require "necktie/gems"
 require "necktie/services"
-require "necktie/files"
+require "necktie/rush"
+
+puts launch_dir
+exit!
 
 def necktie(args)
   etc = "/etc/necktie"
@@ -35,8 +38,9 @@ def necktie(args)
   Dir.chdir repo do
     executed = File.exist?(etc) ? File.read(etc).split("\n") : []
     roles.each do |role|
-      tasks = Dir["tasks/#{role}/*.rb"].sort.map { |name| File.basename(name).gsub(/(.*)\.rb$/, "#{role}/\\1") }
-      todo = tasks - executed
+      skip = executed.map { |t| t[/^#{Regexp.escape role}\/(.*)$/, 1] }.reject(&:nil?)
+      tasks = Dir["tasks/#{role}/*.rb"].sort.map { |name| File.basename(name).gsub(/\.rb$/, "") }
+      todo = tasks - skip
       if tasks.empty?
         puts "  * No tasks for role #{role}"
       elsif todo.empty?
@@ -45,9 +49,9 @@ def necktie(args)
         puts "  * Now in role: #{role}"
         File.open etc, "a" do |f|
           todo.each do |task|
-            puts " ** Executing #{task.split("/").last}"
-            load "tasks/#{task}.rb"
-            f.puts task
+            puts " ** Executing #{task}"
+            load "tasks/#{role}/#{task}.rb"
+            f.puts task if task[/^\d+_/]
           end
         end
       end

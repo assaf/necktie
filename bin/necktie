@@ -1,4 +1,4 @@
 #!/usr/bin/env ruby
-$LOAD_PATH.unshift File.expand_path("../lib", File.dirname(__FILE__))
+$LOAD_PATH.unshift File.expand_path("../lib", File.dirname(__FILE__)), File.expand_path("../rush/lib", File.dirname(__FILE__))
 require "necktie"
 necktie ARGV
