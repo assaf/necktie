@@ -57,7 +57,7 @@ Necktie includes Rush, so you can write tasks like this:
     Services.start "memcached"
   end
 
-You can learn more about Rush here: http://rush.heroku.com/
+You can learn more about Rush here: http://rush.heroku.com
 
 Of course, there's also FileUtils, system and backtick, so you can just:
 
@@ -65,7 +65,7 @@ Of course, there's also FileUtils, system and backtick, so you can just:
   chmod 0755, "/etc/init.d/unicorn"
   `service start unicorn`
 
-Note: The current directory (+launch_dir+ and +Dir.pwd+) is the root directory
+Note: The current directory (+launch_dir+ and <tt>Dir.pwd<tt>) is the root directory
 of your Necktie repository. You can use relative paths to access files from your
 Necktie repository.
 
