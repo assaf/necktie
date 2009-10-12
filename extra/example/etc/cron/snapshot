@@ -1,0 +1,45 @@
+#! /usr/bin/env ruby
+require "mysql"
+require "time"
+require "date"
+
+# NOTE: Change these to match your setup!
+ENV["EC2_PRIVATE_KEY"] = "/mnt/keys/pk-....pem"
+ENV["EC2_CERT"] = "/mnt/keys/cert-....pem"
+ENV["JAVA_HOME"] = "/usr/lib/jvm/java-6-openjdk"
+DB_USER = "root"
+DB_PASSWORD = "..."
+
+instance = `curl -s http://instance-data.ec2.internal/latest/meta-data/instance-id`
+volume = `ec2-describe-volumes`[/ATTACHMENT\t(.*)\t#{instance}\t/, 1]
+
+c = Mysql.new("localhost", DB_USER, DB_PASSWORD) 
+c.query "FLUSH LOCAL TABLES"
+c.query "FLUSH TABLES WITH READ LOCK"
+c.query "SHOW MASTER STATUS"
+system "sync"
+system "xfs_freeze -f /vol"
+system "ec2-create-snapshot #{volume} | logger -t snapshot" rescue nil
+system "xfs_freeze -u /vol"
+c.query "UNLOCK TABLES"
+c.close
+
+
+# Snaps is an array of [snapshot-id, time]
+snaps = `ec2-describe-snapshots`.scan(/(snap-.*)\t#{volume}\tcompleted\t(.*)\t/).map { |(id, time)| [id, Time.parse(time)] }
+now = Time.now
+today = now.to_date
+hr24 = (now - 86400)
+# Keep all snaps from past 24 hours
+snaps.delete_if { |s| s.last >= hr24 }
+# Keep only one from each day
+dated = snaps.group_by { |s| s.last.to_date }
+# Keep every day's snapshot from the last week. (We start with today, which is already excluded, so iterate 8 days total)
+today.downto(today - 7).each do |date|
+  dated[date].delete dated[date].sort_by(&:last).last if dated[date]
+end
+# Map to list of snaps
+deleting = dated.inject([]) { |a,(k,v)| a<<v.map(&:first) }.flatten
+deleting.each do |snap|
+  `ec2-delete-snapshot #{snap} > /dev/null`
+end
