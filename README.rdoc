@@ -1,7 +1,34 @@
-== Using Necktie from Capistrano
+I use Necktie to setup and upgrade multiple servers. 
 
-I have a Capistrano task that will setup a new instance, or upgrade existing one.
-I run deploy (or deploy:cold) immediately after the setup task, which looks like this:
+
+== Dress to impress
+
+Necktie runs a set of scripts (or configuration tasks) that can create and edit
+files, install and setup services, mount volumes, and basically anything you
+can script with Ruby and a shell.
+
+To use Necktie:
+- Write your Necktie tasks using Ruby
+- Include support files (config, binary, etc)
+- +git push+
+- +cap necktie+
+
+I use it to:
+
+- +gem install+, +apt-get+
+- Configure Nginx, install and setup Unicorn
+- Change memcached configuration from default
+- Setup MySQL to use a mounted (EBS) volume
+- Install and update cron scripts
+
+
+== cap necktie
+
+I use Capistrano to setup new instances and upgrade existing ones.  I then run
++deploy:cold+ on the new instances, or +deploy+ to upgrade running instances.
+
+The Capistrano tasks looks something like this (see also:
++extra/capistrano/necktie.rb+):
 
   # Copy Gem over so not depending on gem server being online, and all servers get
   # to use the same version of Necktie.
@@ -10,18 +37,124 @@ I run deploy (or deploy:cold) immediately after the setup task, which looks like
   upload gem_file, File.basename(gem_file), :via=>:scp
   sudo "gem install #{File.basename(gem_file)}"
   # Run Necktie as sudo.
-  sudo "necktie #{necktie_git} app env=#{env}"
+  sudo "necktie #{necktie_url} #{ENV["ROLES"].gsub(',', ' ')} RAILS_ENV=#{fetch(:rails_env, "production")}"
 
-See also file extra/capistrano/necktie.rb.
+To setup a new server:
+
+  cap necktie HOSTS=ec2-75-101-239-12.compute-1.amazonaws.com
+
+To upgrade instances:
+
+  git push && cap necktie
+
+
+== Feel the rush
+
+Necktie includes Rush, so you can write tasks like this:
+
+  unless processes.find { |p| p.cmdline[/memcached\s.*-l\s0.0.0.0/] }
+    box["/etc/memcached.conf"].replace_contents! /^-l 127.0.0.1/, "-l 0.0.0.0"
+    Services.start "memcached"
+  end
+
+You can learn more about Rush here: http://rush.heroku.com/
+
+Of course, there's also FileUtils, system and backtick, so you can just:
+
+  cp "etc/init.d/unicorn", "/etc/init.d"
+  chmod 0755, "/etc/init.d/unicorn"
+  `service start unicorn`
+
+Note: The current directory (+launch_dir+ and +Dir.pwd+) is the root directory
+of your Necktie repository. You can use relative paths to access files from your
+Necktie repository.
+
+
+== Role play
+
+If you have different setups, split them into roles and put different tasks in
+each role. You can run Necktie for one or several roles, in the order they are
+listed on the command line. If you don't specify any role, Necktie runs the
+role +app+.
+
+This is what a Necktie repository with two roles will look like:
+
+  $ tree
+  .
+  |-- etc
+  |   |-- cron
+  |   |   `-- snapshot
+  |   |-- init.d
+  |   |   `-- unicorn
+  |   `-- nginx
+  |       `-- unicorn.conf
+  |-- gems
+  |   `-- unicorn-0.93.3.gem
+  `-- tasks
+      |-- app
+      |   |-- memcached.rb
+      |   |-- nginx.rb
+      |   |-- postfix.rb
+      |   |-- rubygems.rb
+      |   `-- unicorn.rb
+      `-- db
+          |-- 001_mount_volume.rb
+          `-- cron_snapshot.rb
+
+To use multiple roles:
+
+  cap necktie ROLES=app,db
+
+Note: Command line arguments are either role names (run in order), or
++name=value+ pairs that set environment variables (e.g.
++RAILS_ENV=production+).
+
+
+== n = 1 ; m >= 1
+
+Some tasks can run every time, some tasks must only run once. Tasks that only
+run once start with a sequence of digits followed by an underscore. They are
+always run in order. You can use sequences:
+
+  001_mount_db_volume
+  002_start_database
+  003_load_schema
+
+If you're feeling more fancy, you can use timestamps:
+
+  20090920_upgrade_to_mysql_50
+  20091009_upgrade_to_mysql_51
+
+
+== gem install
+
+You can use +install_gem+ in one of two ways. You can pass it a gem name and
+(optional, but highly recommended) version requirement. For example:
+
+  install_gem "unicorn", "~= 0.93"
+
+You can store the gem file in your Necktie repository and install it from there:
+
+  install_gem "gems/unicorn-0.93.3.gem"
+
+I prefer the later, so I'm not affected when gem sources go offline just as I
+decide to run my Necktie tasks.
+
+Since +install_gem+ will only install the same gem/version once, a run-always
++rubygems.rb+ task is all you need:
+
+  launch_dir["gems/*.gem"].each do |gem|
+    install_gem gem.to_s
+  end
 
 
 == License
 
-Necktie, copyright (C) 2009 Assaf Arkin, released under the "Use for good, not evil" license (http://www.json.org/license.html)
+Necktie, copyright (C) 2009 Assaf Arkin, released under the "Use for good, not
+evil" license (http://www.json.org/license.html)
 
 Includes Rush, created by Adam Wiggins and released under the MIT License
-http://rush.heroku.com
-http://github.com/adamwiggins/rush
+http://rush.heroku.com http://github.com/adamwiggins/rush
 
 Includes Session, created by Ara T. Howard and released under the Ruby License
 http://raa.ruby-lang.org/project/session
