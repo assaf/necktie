@@ -1,0 +1,83 @@
+HOST = "example.com"
+
+task :rubygems do
+  # These gems are needed in the enviroment (i.e not bundled with your Rails app).
+  # For example: unicorn, rake, mysql, starling. To install a new gem or upgrade
+  # existing one, include the .gem file in the gems directory. For example:
+  #   $ ls gems
+  #   mysql-2.8.1.gem
+  #   starling-starling-0.10.0.gem
+  #   unicorn-0.93.2.gem
+  launch_dir["gems/*.gem"].each do |gem|
+    install_gem gem.to_s
+  end
+end
+
+task :memcached do
+  # Out of the box, memcached listens to local requests only.
+  # Allow access from all servers (in the same security group).
+  unless processes.find { |p| p.cmdline[/memcached\s.*-l\s0.0.0.0/] }
+    update "/etc/memcached.conf", /^-l 127.0.0.1/, "-l 0.0.0.0"
+    services.start "memcached"
+  end
+end
+
+task :nginx do
+  # setup nginx: copy our site configuration over and enable only that configuration.
+  unless services.running?("nginx")
+    rm_rf Dir["/etc/nginx/sites-enabled/*"]
+    cp "etc/nginx/unicorn.conf", "/etc/nginx/sites-available/"
+    ln_sf "/etc/nginx/sites-available/unicorn.conf", "/etc/nginx/sites-enabled/"
+    services.start "nginx"
+  end
+end
+
+task :unicorn=>:rubygems do
+  # init.d script to start unicorn. we don't start the service yet, need to deploy
+  # rails app first, which we do with cap deploy:cold. only setup unicorn for now.
+  cp "etc/init.d/unicorn", "/etc/init.d/"
+  chmod 0755, "/etc/init.d/unicorn"
+end
+
+# Have postfix send emails on behalf of our host, and start it. 
+task :mail do
+  unless services.running?("postfix")
+    update "/etc/postfix/main.cf", /^myhostname\s*=.*$/, "myhostname = #{HOST}"
+    write "/etc/mailname", HOST
+    services.start "postfix"
+  end
+end
+
+task :app=>[:memcached, :nginx, :unicorn, :mail]
+
+
+task "/etc/cron/snapshot" do
+  cp "etc/cron/snapshot", "/etc/cron.hourly/"
+  chmod 0755, "/etc/cron/snapshot"
+end
+
+task "/vol" do
+  # Assumes we attach EBS volume to /dev/sdh, formatted it to XFS, mounted to /vol.
+  append "/etc/fstab", "\n/dev/sdh /vol xfs noatime,nobarrier 0 0" unless read("/etc/fstab")["/dev/sdh "]
+  sh "mount /vol"
+end
+
+task "/etc/mysql"=>"/vol" do
+  # Mount the respective MySQL directories. Make sure they exist on your EBS volume first, see:
+  # http://developer.amazonwebservices.com/connect/entry.jspa?externalID=1663
+  mounts = { "/vol/etc/mysql"=>"/etc/mysql",
+             "/vol/lib/mysql"=>"/var/lib/mysql",
+             "/vol/log/mysql"=>"/var/log/mysql" }
+  mounts.each do |vol, path|
+    mkdir_p path
+    append "/etc/fstab", "\n#{vol} #{path} none bind" unless read("/etc/fstab")["#{vol} "]
+    sh "mount #{path}"
+  end
+  chmod 0755, "/etc/mysql/debian-start"
+end
+
+task "mysql"=>"/etc/mysql" do
+  services.start "mysql" unless services.running?("mysql")
+end
+
+task :db=>[:mysql, "/etc/cron/snapshot"]

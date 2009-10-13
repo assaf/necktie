@@ -9,7 +9,7 @@ can script with Ruby and a shell.
 
 To use Necktie:
 - Write your Necktie tasks using Ruby
-- Include support files (config, binary, etc)
+- Include support files (config, binaries, etc)
 - git push
 - cap necktie
 
@@ -20,6 +20,52 @@ I use it to:
 - Change memcached configuration from default
 - Setup MySQL to use a mounted (EBS) volume
 - Install and update cron scripts
+
+
+== Tasking
+
+Necktie is based on Rake, so if you know Rake you already know most of Necktie.
+At the base of your Necktie project there's a file called necktie (or Necktie,
+or necktie.rb), with a list of task. For example:
+
+  file "/var/myapp" do
+    append "/etc/fstab", "\n/mnt/myapp /var/myapp none bind" unless read("/etc/fstab")["/mnt/myapp"]
+    mkdir_p "/var/myapp/"
+    sh "mount /var/myapp"
+  end
+
+  task :rubygems do
+    FileList["gems/*.gem"].each do |gem|
+      install_gem gem
+    end
+  end
+
+  task :nginx do
+    rm_rf "/etc/nginx/sites-enabled/*"
+    cp "etc/nginx/unicorn.conf", "/etc/nginx/sites-available/"
+    ln_sf "/etc/nginx/sites-available/unicorn.conf", "/etc/nginx/sites-enabled/"
+    services.start "nginx"
+  end
+
+  task :unicorn=>[:rubygems] do
+    cp "etc/init.d/unicorn", "/etc/init.d/"
+    chmod 0750, "/etc/init.d/unicorn"
+  end
+
+  task :app=>["/var/myapp", :nginx, :unicorn]
+
+You then run the app task, which runs all the dependencies necessary to setup
+your application directory, system gems, Nginx and Unicorn configuration. Ready
+for deployment.
+
+If you changed one of the configuration files, you can run Necktie again: it
+will pull updates from the Git repository and run these tasks with the new
+configuration files.
+
+Note: The nginx and unicorn files will run every time you run the app task, so
+you can use them to push out new configuration.  In contrast, the /var/myapp
+directory is mounted by a file task that will only run once (if the directory
+doesn't exist).
 
 
 == cap necktie
@@ -37,7 +83,7 @@ extra/capistrano/necktie.rb):
   upload gem_file, File.basename(gem_file), :via=>:scp
   sudo "gem install #{File.basename(gem_file)}"
   # Run Necktie as sudo.
-  sudo "necktie #{necktie_url} #{ENV["ROLES"].gsub(',', ' ')} RAILS_ENV=#{fetch(:rails_env, "production")}"
+  sudo "necktie #{necktie_url} #{ENV["ROLES"].to_s.gsub(',', ' ')}"
 
 To setup a new server:
 
@@ -59,11 +105,11 @@ Necktie includes Rush, so you can write tasks like this:
 
 You can learn more about Rush here: http://rush.heroku.com
 
-Of course, there's also FileUtils, system and backtick, so you can just:
+Of course, there's also FileUtils, system and sh, so you can just:
 
   cp "etc/init.d/unicorn", "/etc/init.d"
   chmod 0755, "/etc/init.d/unicorn"
-  `service start unicorn`
+  sh "service start unicorn"
 
 Note: The current directory (launch_dir and Dir.pwd) is the root directory
 of your Necktie repository. You can use relative paths to access files from your
@@ -72,58 +118,22 @@ Necktie repository.
 
 == Role play
 
-If you have different setups, split them into roles and put different tasks in
-each role. You can run Necktie for one or several roles, in the order they are
-listed on the command line. If you don't specify any role, Necktie runs the
-role app.
+If you have different setups, split them into roles and give each role its own
+head task. You can then run Necktie for one or several roles, in the order they
+are listed on the command line.
 
-This is what a Necktie repository with two roles will look like:
+For example:
 
-  $ tree
-  .
-  |-- etc
-  |   |-- cron
-  |   |   `-- snapshot
-  |   |-- init.d
-  |   |   `-- unicorn
-  |   `-- nginx
-  |       `-- unicorn.conf
-  |-- gems
-  |   `-- unicorn-0.93.3.gem
-  `-- tasks
-      |-- app
-      |   |-- memcached.rb
-      |   |-- nginx.rb
-      |   |-- postfix.rb
-      |   |-- rubygems.rb
-      |   `-- unicorn.rb
-      `-- db
-          |-- 001_mount_volume.rb
-          `-- cron_snapshot.rb
+  task :app=>["rubygems", "nginx", "unicorn", "/var/myapp"]
+  task :db=>["mount", "master", "backup"]
 
-To use multiple roles:
+
+I recommend using the same roles for Necktie and Capistrano, then you can:
 
   cap necktie ROLES=app,db
 
-Note: Command line arguments are either role names (run in order), or
-name=value pairs that set environment variables (e.g.
-RAILS_ENV=production).
-
-
-== n = 1 ; m >= 1
-
-Some tasks can run every time, some tasks must only run once. Tasks that only
-run once start with a sequence of digits followed by an underscore. They are
-always run in order. You can use sequences:
-
-  001_mount_db_volume
-  002_start_database
-  003_load_schema
-
-If you're feeling more fancy, you can use timestamps:
-
-  20090920_upgrade_to_mysql_50
-  20091009_upgrade_to_mysql_51
+Note: Command line arguments are either task names (run in order), or
+name=value pairs that set environment variables (e.g.  RAILS_ENV=production).
 
 
 == gem install
@@ -152,6 +162,9 @@ rubygems.rb task is all you need:
 
 Necktie, copyright (C) 2009 Assaf Arkin, released under the "Use for good, not
 evil" license (http://www.json.org/license.html)
+
+Includes Rake, created by Jim Weirich and released under the MIT license
+http://rake.rubyforge.org/ http://github.com/jimweirich/rake
 
 Includes Rush, created by Adam Wiggins and released under the MIT License
 http://rush.heroku.com http://github.com/adamwiggins/rush
