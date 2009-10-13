@@ -10,12 +10,12 @@ can script with Ruby and a shell.
 To use Necktie:
 - Write your Necktie tasks using Ruby
 - Include support files (config, binary, etc)
-- +git push+
-- +cap necktie+
+- git push
+- cap necktie
 
 I use it to:
 
-- +gem install+, +apt-get+
+- gem install, apt-get
 - Configure Nginx, install and setup Unicorn
 - Change memcached configuration from default
 - Setup MySQL to use a mounted (EBS) volume
@@ -25,10 +25,10 @@ I use it to:
 == cap necktie
 
 I use Capistrano to setup new instances and upgrade existing ones.  I then run
-+deploy:cold+ on the new instances, or +deploy+ to upgrade running instances.
+deploy:cold on the new instances, or deploy to upgrade running instances.
 
 The Capistrano tasks looks something like this (see also:
-+extra/capistrano/necktie.rb+):
+extra/capistrano/necktie.rb):
 
   # Copy Gem over so not depending on gem server being online, and all servers get
   # to use the same version of Necktie.
@@ -65,7 +65,7 @@ Of course, there's also FileUtils, system and backtick, so you can just:
   chmod 0755, "/etc/init.d/unicorn"
   `service start unicorn`
 
-Note: The current directory (+launch_dir+ and <tt>Dir.pwd<tt>) is the root directory
+Note: The current directory (launch_dir and Dir.pwd) is the root directory
 of your Necktie repository. You can use relative paths to access files from your
 Necktie repository.
 
@@ -75,7 +75,7 @@ Necktie repository.
 If you have different setups, split them into roles and put different tasks in
 each role. You can run Necktie for one or several roles, in the order they are
 listed on the command line. If you don't specify any role, Necktie runs the
-role +app+.
+role app.
 
 This is what a Necktie repository with two roles will look like:
 
@@ -106,8 +106,8 @@ To use multiple roles:
   cap necktie ROLES=app,db
 
 Note: Command line arguments are either role names (run in order), or
-+name=value+ pairs that set environment variables (e.g.
-+RAILS_ENV=production+).
+name=value pairs that set environment variables (e.g.
+RAILS_ENV=production).
 
 
 == n = 1 ; m >= 1
@@ -128,7 +128,7 @@ If you're feeling more fancy, you can use timestamps:
 
 == gem install
 
-You can use +install_gem+ in one of two ways. You can pass it a gem name and
+You can use install_gem in one of two ways. You can pass it a gem name and
 (optional, but highly recommended) version requirement. For example:
 
   install_gem "unicorn", "~= 0.93"
@@ -140,8 +140,8 @@ You can store the gem file in your Necktie repository and install it from there:
 I prefer the later, so I'm not affected when gem sources go offline just as I
 decide to run my Necktie tasks.
 
-Since +install_gem+ will only install the same gem/version once, a run-always
-+rubygems.rb+ task is all you need:
+Since install_gem will only install the same gem/version once, a run-always
+rubygems.rb task is all you need:
 
   launch_dir["gems/*.gem"].each do |gem|
     install_gem gem.to_s
