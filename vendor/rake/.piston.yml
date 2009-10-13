@@ -1,0 +1,8 @@
+--- 
+repository_url: git://github.com/jimweirich/rake.git
+lock: false
+repository_class: Piston::Git::Repository
+format: 1
+handler: 
+  commit: 0e555e3cda75fd37a3e7c7c058f0fe585c0bf5bd
+  branch: master
