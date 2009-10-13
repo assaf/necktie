@@ -8,6 +8,6 @@ task :necktie do
   upload gem_file, File.basename(gem_file), :via=>:scp
   sudo "gem install #{File.basename(gem_file)}"
   # Run Necktie as sudo.
-  sudo "necktie #{necktie_url} #{ENV["ROLES"].gsub(',', ' ')} RAILS_ENV=#{fetch(:rails_env, "production")}"
+  sudo "necktie #{necktie_url} #{ENV["ROLES"].to_s.gsub(',', ' ')} RAILS_ENV=#{fetch(:rails_env, "production")}"
 end
 before "deploy:cold", "necktie"
