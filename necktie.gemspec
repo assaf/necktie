@@ -1,6 +1,6 @@
 Gem::Specification.new do |spec|
   spec.name           = "necktie"
-  spec.version        = "0.3.0"
+  spec.version        = "0.3.2"
   spec.author         = "Assaf Arkin"
   spec.email          = "assaf@labnotes.org"
   spec.homepage       = ""

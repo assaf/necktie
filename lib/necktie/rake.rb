@@ -12,26 +12,23 @@ module Necktie
 
     def run
       standard_exception_handling do
-        handle_options
-        Dir.chdir clone_repo do
-          collect_tasks
+        init
+        repo = File.expand_path(".necktie")
+        if File.exist?(repo)
+          if options.pull
+            puts "Pulling latest updates ..."
+            sh "git pull origin #{ENV["BRANCH"] || "master"}", :verbose=>false
+          end
+        else
+          git_url = ENV["GIT_URL"] or fail "Need GIT_URL variable to point to Git repository, can't clone without it"
+          puts "Cloning #{git_url} to #{repo}"
+          sh "git clone #{git_url} #{repo.inspect}", :verbose=>false
+        end
+        Dir.chdir repo do
           load_rakefile
           top_level
         end
       end
-    end
-
-    def clone_repo
-      @git_url = ARGV.shift or fail "expecting first argument to be a Git repository URL"
-      repo = File.expand_path(".necktie")
-      if File.exist?(repo)
-        puts "Pulling latest updates to #{repo}"
-        system "cd #{repo.inspect} && git pull origin #{ENV["BRANCH"] || "master"}" or fail
-      else
-        puts "Cloning #{@git_url} to #{repo}"
-        system "git clone #{@git_url} #{repo.inspect}" or fail
-      end
-      repo
     end
 
     def necktie_options
@@ -74,7 +71,7 @@ module Necktie
         ],
         ['--version', '-V', "Display the program version.",
           lambda { |value|
-            spec = Gem::Specification.load(File.expand_path("../necktie.gemspec", File.dirname(__FILE__)))
+            spec = Gem::Specification.load(File.expand_path("../../necktie.gemspec", File.dirname(__FILE__)))
             puts "Necktie, version #{spec.version}"
             exit
           }
@@ -86,6 +83,9 @@ module Necktie
             Rake::TaskManager.record_task_metadata = true
           }
         ],
+        ['--update', '-u', "Update .necktie directory (git pull)",
+          lambda { |value| options.pull = true }
+        ]
       ]
     end
 
