@@ -5,8 +5,8 @@ set -e
 # since nginx and unicorn accept the same signals
  
 # Feel free to change any of the following variables for your app:
-APP_ROOT=/var/app/current
-PID=/var/run/unicorn.pid
+APP_ROOT=/var/myapp/current
+PID=$APP_ROOT/tmp/pids/unicorn.pid
 ENV=production
 CMD="/usr/local/bin/unicorn_rails -D -E $ENV -c config/unicorn.rb"
  

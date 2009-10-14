@@ -9,6 +9,7 @@ ENV["EC2_CERT"] = "/mnt/keys/cert-....pem"
 ENV["JAVA_HOME"] = "/usr/lib/jvm/java-6-openjdk"
 DB_USER = "root"
 DB_PASSWORD = "..."
+VOLUME = "/vol"
 
 instance = `curl -s http://instance-data.ec2.internal/latest/meta-data/instance-id`
 volume = `ec2-describe-volumes`[/ATTACHMENT\t(.*)\t#{instance}\t/, 1]
@@ -18,9 +19,9 @@ c.query "FLUSH LOCAL TABLES"
 c.query "FLUSH TABLES WITH READ LOCK"
 c.query "SHOW MASTER STATUS"
 system "sync"
-system "xfs_freeze -f /vol"
+system "xfs_freeze -f #{VOLUME}"
 system "ec2-create-snapshot #{volume} | logger -t snapshot" rescue nil
-system "xfs_freeze -u /vol"
+system "xfs_freeze -u #{VOLUME}"
 c.query "UNLOCK TABLES"
 c.close
 
