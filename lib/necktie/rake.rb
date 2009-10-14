@@ -83,7 +83,7 @@ module Necktie
             Rake::TaskManager.record_task_metadata = true
           }
         ],
-        ['--update', '-u', "Update .necktie directory (git pull)",
+        ['--update', '-U', "Update .necktie directory (git pull)",
           lambda { |value| options.pull = true }
         ]
       ]
