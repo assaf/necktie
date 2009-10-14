@@ -15,10 +15,10 @@ module Necktie
         init
         repo = File.expand_path(".necktie")
         if File.exist?(repo)
-          if options.pull
+          Dir.chdir repo do
             puts "Pulling latest updates ..."
             sh "git pull origin #{ENV["BRANCH"] || "master"}", :verbose=>false
-          end
+          end if options.pull
         else
           git_url = ENV["GIT_URL"] or fail "Need GIT_URL variable to point to Git repository, can't clone without it"
           puts "Cloning #{git_url} to #{repo}"
