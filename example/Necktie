@@ -2,3 +2,11 @@
 @hostname = "example.com"
 @git_url = "git@example.com:myapp"
 @deploy_to = "/var/myapp"
+
+task :environment do
+  profile = File.expand_path("~/.bash_profile")
+  append profile, "\nexport RAILS_ENV=#{Necktie.env}\n" unless read(profile)["export RAILS_ENV"]
+  # Change command line prompt for production (LIVE in red) and and staging (STAGE in blue).
+  ps = Necktie.env == "staging" ? "\\e[0;34mSTAGE\\e[m \\w $ " : "\\e[0;31mLIVE\\e[m \\w $ " 
+  append profile, "PS1=\"#{ps}\"\n" unless read(profile)["PS1=\"#{ps}\""]
+end

@@ -27,4 +27,4 @@ task "mysql"=>"/etc/mysql" do
   services.start "mysql" unless services.running?("mysql")
 end
 
-task :db=>[:mysql, "/etc/cron/snapshot"]
+task :db=>[:environment, :mysql, "/etc/cron/snapshot"]

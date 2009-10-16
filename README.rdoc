@@ -114,9 +114,9 @@ also:
   chmod 0755, "/etc/init.d/unicorn"
   sh "service start unicorn"
 
-Note: The current directory (Dir.pwd and launch_dir) is the root directory of
-your Necktie repository. You can depend on relative paths when accessing files
-in your Necktie repository.
+The current directory (Dir.pwd and launch_dir) is the root directory of your
+Necktie repository. You can depend on relative paths when accessing files in
+your Necktie repository.
 
 
 == Role play
@@ -139,6 +139,9 @@ If you have only one role, or work frequently with a given role, you can define
 the default task instead of setting ROLES each time. In your Necktie file add:
 
   task :default=>:app
+
+You may also want to take advantage of different environments, customizing your
+setup differently between production, staging, etc.
 
 Note: As with Rake, command line arguments are either options (see necktie -H),
 task names (executed in order), or name=value pairs that set environment
@@ -169,14 +172,14 @@ rubygems.rb task is all you need:
 
 == One on one
 
-If you need to run Necktie interactively, use the necktie command. The first
-time you run Necktie, it clones the Git repository into the .necktie directory
-in your home directory. You'll need to give it the Git URL, for example:
+You can also run Necktie from the command line directly on the server you're
+configuring.  The first time you run Necktie, it clones the Git repository into
+the ~/.necktie directory. You'll need to give it the Git URL, like this:
 
-  necktie GIT_URL=git@example.com:mysetup app
+  necktie --source git@example.com:mysetup app
 
 Subsequent runs use that repository. You can launch the necktie command from
-anywhere, it will always switch to the .necktie directory, run the tasks and
+anywhere, it will always switch to the ~/.necktie directory, run the tasks and
 switch back to the previous working directory.
 
 If you want to pull changes from the Git repository, use the -U option:

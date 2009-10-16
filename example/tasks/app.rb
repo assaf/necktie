@@ -46,4 +46,4 @@ task :email do
   end
 end
 
-task :app=>[:memcached, :nginx, :email]
+task :app=>[:environment, :memcached, :nginx, :email]
