@@ -1,0 +1,4 @@
+#!ruby
+@hostname = "example.com"
+@git_url = "git@labnotes.org:apartly-app"
+@deploy_to = "/var/myapp"
