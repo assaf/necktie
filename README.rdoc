@@ -79,20 +79,19 @@ only runs once, before that directory exists.
 
 == cap necktie
 
-I use Capistrano to setup new instances and upgrade existing ones.  I then run
-deploy:cold on the new instances, or deploy to upgrade running instances.
+I use Capistrano to setup new instances and upgrade existing ones.
 
-To use the necktie task set the necktie_url variable and require
-necktie/capistrano:
+To use the Necktie task, set the necktie_url variable to the URL of your
+Necktie repository, and require necktie/capistrano. For example:
 
   require "necktie/capistrano"
   set :necktie_url, "git@example.com:mysetup"
 
-To setup a new server:
+Setting up a new EC2 instance:
 
   cap necktie ROLES=app HOSTS=ec2-75-101-239-12.compute-1.amazonaws.com
 
-To upgrade running instances:
+Upgrading running instances with new configuration:
 
   git push && cap necktie
 
