@@ -1,4 +1,4 @@
-require "necktie/rake"
+require "necktie/application"
 require "necktie/files"
 require "necktie/gems"
 require "necktie/services"
