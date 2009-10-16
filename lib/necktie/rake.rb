@@ -1,13 +1,14 @@
 require "rake"
 
 module Necktie
-  class Application < Rake::Application
+  class Application < Rake::Application #:nodoc:
 
     def initialize
       super
       @name = "necktie"
       @rakefiles = ["Necktie", "necktie", "Necktie.rb", "necktie.rb"]
       options.nosearch = true
+      options.env = "production"
     end
 
     def run
@@ -33,6 +34,11 @@ module Necktie
 
     def necktie_options
       [
+        ['--env', '-e NAME', "Sets the environment (defaults to 'production').",
+          lambda { |value|
+            options.env = value
+          }
+        ],
         ['--describe', '-D [PATTERN]', "Describe the tasks (matching optional PATTERN), then exit.",
           lambda { |value|
             options.show_tasks = :describe
@@ -123,5 +129,10 @@ module Necktie
       load_imports
     end
 
+  end
+
+  # Returns the environment name (set using -e command line option).
+  def self.env
+    Rake.application.options.env
   end
 end

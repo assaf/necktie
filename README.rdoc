@@ -20,6 +20,10 @@ I use it to:
 - Setup MySQL to use a mounted (EBS) volume
 - Install and update cron scripts
 
+To install Necktie:
+
+  $ gem install necktie --source http://gemcutter.org
+
 
 == Tasking
 
