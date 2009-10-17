@@ -1,2 +1,6 @@
+1.0.1 (2009-10-16)
+* Improvements to RDoc.
+* Necktie module helps with documentation and usage.
+
 1.0.0 (2009-10-16)
 * First stable release.

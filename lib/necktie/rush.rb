@@ -1,7 +1,7 @@
 require "rush"
 include Rush
 
-class Object #:nodoc:
+class Object
   include Rush
   Rush.methods(false).each do |method|
     define_method method do |*args|
