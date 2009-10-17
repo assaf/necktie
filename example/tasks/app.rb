@@ -20,30 +20,29 @@ task :memcached do
   end
 end
 
-task :unicorn=>[:rubygems, "#{@deploy_to}/current"] do
-  # Install init.d script to manage Unicorn, before we can start it.
+file "/etc/init.d/unicorn"=>"etc/init.d/unicorn" do
   cp "etc/init.d/unicorn", "/etc/init.d/"
   chmod 0755, "/etc/init.d/unicorn"
-  services.start "unicorn"
+  services.restart "unicorn"
 end
+task :unicorn=>[:rubygems, "#{@deploy_to}/current", "/etc/initd.unicorn"]
 
-task :nginx=>:unicorn do
+file "/etc/nginx/sites-available/unicorn.conf"=>"etc/nginx/unicorn.conf" do
   # We only care about one Nginx configuration, so enable it and disable all others.
-  unless services.running?("nginx")
-    rm_rf Dir["/etc/nginx/sites-enabled/*"]
-    cp "etc/nginx/unicorn.conf", "/etc/nginx/sites-available/"
-    ln_sf "/etc/nginx/sites-available/unicorn.conf", "/etc/nginx/sites-enabled/"
-    services.start "nginx"
-  end
+  rm_rf Dir["/etc/nginx/sites-enabled/*"]
+  cp "etc/nginx/unicorn.conf", "/etc/nginx/sites-available/"
+  ln_sf "/etc/nginx/sites-available/unicorn.conf", "/etc/nginx/sites-enabled/"
+  sh "service nginx reload"
 end
+task :nginx=>[:unicorn, "/etc/nginx/sites-available/unicorn.conf"
 
-task :email do
+task :postfix do
   # Have postfix send emails on behalf of our host, and start it. 
-  unless services.running?("postfix")
+  unless read("/etc/postfix/main.cf")[@hostname]
     update "/etc/postfix/main.cf", /^myhostname\s*=.*$/, "myhostname = #{@hostname}"
     write "/etc/mailname", @hostname
-    services.start "postfix"
+    services.restart "postfix"
   end
 end
 
-task :app=>[:environment, :memcached, :nginx, :email]
+task :app=>[:environment, :memcached, :unicorn, :nginx, :postfix]

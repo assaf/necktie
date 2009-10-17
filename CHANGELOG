@@ -1,3 +1,7 @@
+1.0.2
+* Added services.reload and improved read time for services.running?
+* Example now uses more file tasks for conditional updates.
+
 1.0.1 (2009-10-16)
 * Improvements to RDoc.
 * Necktie module helps with documentation and usage.

@@ -147,6 +147,9 @@ the default task instead of setting ROLES each time. In your Necktie file add:
 You may also want to take advantage of different environments, customizing your
 setup differently between production, staging, etc.
 
+Check the example directory for ideas on how to split large configurations into
+smaller files and tasks.
+
 Note: As with Rake, command line arguments are either options (see necktie -H),
 task names (executed in order), or name=value pairs that set environment
 variables (e.g. RAILS_ENV=production).
