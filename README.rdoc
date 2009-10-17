@@ -34,7 +34,7 @@ At the base of your Necktie project there's a file called Necktie (or necktie,
 or necktie.rb), with a list of tasks. For example:
 
   file "/var/myapp" do
-    append "/etc/fstab", "\n/mnt/myapp /var/myapp none bind" unless read("/etc/fstab")["/mnt/myapp"]
+    append "/etc/fstab", "/mnt/myapp /var/myapp none bind\n" unless read("/etc/fstab")["/mnt/myapp"]
     mkdir_p "/var/myapp/"
     sh "mount /var/myapp"
   end
@@ -55,7 +55,7 @@ or necktie.rb), with a list of tasks. For example:
   end
 
   desc "Setup and start Unicorn"
-  task :unicorn=>[:rubygems] do
+  task :unicorn=>[:rubygems, "/var/myapp"] do
     cp "etc/init.d/unicorn", "/etc/init.d/"
     chmod 0750, "/etc/init.d/unicorn"
   end
@@ -100,9 +100,11 @@ Upgrading running instances with new configuration:
 
 Necktie includes Rush, so you can write tasks like this:
 
-  unless processes.find { |p| p.cmdline[/memcached\s.*-l\s0.0.0.0/] }
-    box["/etc/memcached.conf"].replace_contents! /^-l 127.0.0.1/, "-l 0.0.0.0"
-    services.start "memcached"
+  task :memcached do
+    unless processes.find { |p| p.cmdline[/memcached\s.*-l\s0.0.0.0/] }
+      box["/etc/memcached.conf"].replace_contents! /^-l 127.0.0.1/, "-l 0.0.0.0"
+      services.start "memcached"
+    end
   end
 
 You can learn more about Rush here: http://rush.heroku.com
@@ -110,9 +112,11 @@ You can learn more about Rush here: http://rush.heroku.com
 Of course, there's also FileUtils, system and sh (courtesy of Rake), so you can
 also:
 
-  cp "etc/init.d/unicorn", "/etc/init.d"
-  chmod 0755, "/etc/init.d/unicorn"
-  sh "service start unicorn"
+  # Update whenever we have a newer config file.
+  file "/etc/nginx/nginx.conf"=>"etc/nginx.conf" do
+    cp "etc/nginx.conf", "/etc/nginx/nginx.conf"
+    sh "service nginx restart"
+  end
 
 The current directory (Dir.pwd and launch_dir) is the root directory of your
 Necktie repository. You can depend on relative paths when accessing files in
@@ -165,8 +169,10 @@ to upgrade.
 Since install_gem will only install the same gem/version once, a run-always
 rubygems.rb task is all you need:
 
-  FileUtils["gems/*.gem"].each do |gem|
-    install_gem gem
+  task :rubygems do
+    Dir["gems/*.gem"].each do |gem|
+      install_gem gem
+    end
   end
 
 
