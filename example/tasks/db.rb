@@ -1,6 +1,6 @@
 file "/etc/cron.hourly/snapshot"=>"etc/cron/snapshot" do
   cp "etc/cron/snapshot", "/etc/cron.hourly/"
-  chmod 750, "/etc/cron.hourly/snapshot"
+  chmod 0755, "/etc/cron.hourly/snapshot"
 end
 
 task "/vol" do

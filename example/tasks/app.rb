@@ -22,6 +22,7 @@ end
 
 file "/etc/init.d/unicorn"=>"etc/init.d/unicorn" do
   cp "etc/init.d/unicorn", "/etc/init.d/"
+  update "/etc/init.d/unicorn", /^ENV=.*$/, "ENV=#{Necktie.env}"
   chmod 0755, "/etc/init.d/unicorn"
   services.restart "unicorn"
 end
