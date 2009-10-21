@@ -3,6 +3,7 @@
 * Example now uses more file tasks for conditional updates.
 * Command line option --env becomes --environment.
 * Fix to cap necktie task, and using --trace by default.
+* Updated examples based on tasks we're using in production.
 
 1.0.1 (2009-10-16)
 * Improvements to RDoc.

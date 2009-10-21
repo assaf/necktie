@@ -213,3 +213,5 @@ http://rush.heroku.com http://github.com/adamwiggins/rush
 Includes Session, created by Ara T. Howard and released under the Ruby License
 http://raa.ruby-lang.org/project/session
 http://www.codeforpeople.com/lib/ruby/session
+
+Developed for managing EC2 instances for http://apartly.com 
