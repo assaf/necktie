@@ -8,6 +8,6 @@ Capistrano::Configuration.instance.load do
     upload gem_file, File.basename(gem_file), :via=>:scp
     sudo "gem install #{File.basename(gem_file)}"
     tasks = ENV["ROLES"].to_s.split(",") # ROLES => task names
-    sudo "necktie --source #{necktie_url} --update --environment #{fetch(:rails_env, "production")} #{task.join(" ")}"
+    sudo "necktie --source #{necktie_url} --update --environment #{fetch(:rails_env, "production")} #{tasks.join(" ")} --trace"
   end
 end

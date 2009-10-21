@@ -35,7 +35,7 @@ module Necktie
 
     def necktie_options
       [
-        ['--env', '-e NAME', "Sets the environment (defaults to 'production').",
+        ['--environment', '-e NAME', "Sets the environment (defaults to 'production').",
           lambda { |value|
             options.env = value
           }
