@@ -1,4 +1,9 @@
-1.0.2
+1.0.3 (2009-11-2)
+* Added Necktie::Version.
+* Added gem clean to rubygems task (examples).
+* Fixed a bug in nginx task (examples).
+
+1.0.2 (2009-10-20)
 * Added services.reload and improved read time for services.running?
 * Example now uses more file tasks for conditional updates.
 * Command line option --env becomes --environment.
