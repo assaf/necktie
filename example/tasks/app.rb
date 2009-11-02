@@ -1,3 +1,4 @@
+desc "Update Ruby gems"
 task :rubygems do
   # These gems are needed in the enviroment (i.e not bundled with your Rails app).
   # For example: unicorn, rake, mysql, starling. To install a new gem or upgrade
@@ -9,11 +10,12 @@ task :rubygems do
   Dir["gems/*.gem"].each do |gem|
     install_gem gem
   end
+  sh "gem clean"
 end
 
 task :memcached do
-  # Out of the box, memcached listens to local requests only. We want all servers
-  # in the same security group to access each other's memcached.
+  # Out of the box, memcached listens to local requests only.
+  # Allow access from all servers (in the same security group).
   unless processes.find { |p| p.cmdline[/memcached\s.*-l\s0.0.0.0/] }
     update "/etc/memcached.conf", /^-l 127.0.0.1/, "-l 0.0.0.0"
     services.start "memcached"
@@ -35,7 +37,7 @@ file "/etc/nginx/sites-available/unicorn.conf"=>"etc/nginx/unicorn.conf" do
   ln_sf "/etc/nginx/sites-available/unicorn.conf", "/etc/nginx/sites-enabled/"
   sh "service nginx reload"
 end
-task :nginx=>[:unicorn, "/etc/nginx/sites-available/unicorn.conf"
+task :nginx=>[:unicorn, "/etc/nginx/sites-available/unicorn.conf"]
 
 task :postfix do
   # Have postfix send emails on behalf of our host, and start it. 
@@ -46,4 +48,5 @@ task :postfix do
   end
 end
 
+desc "Setup: memcached, nginx, unicorn and postfix"
 task :app=>[:environment, :memcached, :unicorn, :nginx, :postfix]
