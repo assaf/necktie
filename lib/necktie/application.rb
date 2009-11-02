@@ -91,8 +91,7 @@ module Necktie
         ],
         ['--version', '-V', "Display the program version.",
           lambda { |value|
-            spec = Gem::Specification.load(File.expand_path("../../necktie.gemspec", File.dirname(__FILE__)))
-            puts "Necktie, version #{spec.version}"
+            puts "Necktie, version #{Necktie::Version::STRING}"
             exit
           }
         ],
