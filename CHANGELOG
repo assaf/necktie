@@ -1,4 +1,4 @@
-1.0.4
+1.0.4 (2009-11-4)
 * When used with -U option and no other argument, necktie command updates the
 local repo but does not run any task.
 * Introduced -R option which you can use to checkout specific reference (tag,
