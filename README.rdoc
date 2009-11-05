@@ -1,4 +1,4 @@
-I use Necktie to setup and upgrade multiple servers. 
+= Minimalistic server configuration tool
 
 
 == Dress to impress
