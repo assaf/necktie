@@ -1,4 +1,5 @@
 require "rake"
+require "syslog"
 
 module Necktie
   class Application < Rake::Application #:nodoc:
@@ -9,6 +10,7 @@ module Necktie
       @rakefiles = ["Necktie", "necktie", "Necktie.rb", "necktie.rb"]
       options.nosearch = true
       options.env = "production"
+      @syslog = Syslog.open("necktie")
     end
 
     def run
@@ -28,9 +30,11 @@ module Necktie
         sh "git checkout #{options.ref}" if options.ref
         @sha = `git rev-parse --verify HEAD --short`.strip
         puts "(in #{Dir.pwd}, head is #{@sha}, environment is #{options.env})"
+        syslog :info, "environment is #{options.env}"
         Dir.chdir repo do
           load_rakefile
           top_level unless options.pull && ARGV.empty?
+          syslog :info, "done"
         end
       end
     end
@@ -136,10 +140,27 @@ module Necktie
       load_imports
     end
 
+    def syslog(level, message)
+      @syslog.send level, "[#{@sha}] #{message.strip.gsub(/%/, '%%')}" # syslog(3) freaks on % (printf)
+    end
+
   end
 
   # Returns the environment name (set using -e command line option).
   def self.env
     Rake.application.options.env
+  end
+
+end
+
+
+class Rake::Task #:nodoc:
+  alias :execute_without_syslog :execute
+  def execute(args=nil)
+    application.syslog :info, "execute: #{name}"
+    execute_without_syslog args
+  rescue
+    application.syslog :err, "#{$!.backtrace.first}: #{$!.class}: #{$!}"
+    raise
   end
 end

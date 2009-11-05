@@ -5,6 +5,7 @@ local repo but does not run any task.
 commit, tree).
 * cap necktie task broken up into separate stages, now runs deploy:web:disable
 before running necktie:upgrade.
+* Added syslog messages.
 
 1.0.3 (2009-11-2)
 * Added Necktie::Version.

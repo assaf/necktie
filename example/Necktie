@@ -10,3 +10,5 @@ task :environment do
   ps = Necktie.env == "staging" ? "\\e[0;34mSTAGE\\e[m \\w $ " : "\\e[0;31mLIVE\\e[m \\w $ " 
   append profile, "PS1=\"#{ps}\"\n" unless read(profile)["PS1=\"#{ps}\""]
 end
+
+task :default=>:app
