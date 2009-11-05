@@ -1,28 +1,19 @@
 = Minimalistic server configuration tool
 
-
-== Dress to impress
-
-Necktie runs a set of scripts (or configuration tasks) that can create and edit
-files, install and setup services, mount volumes, and basically anything you
-can script with Ruby and a shell.
-
-To use Necktie:
-- Write your Necktie tasks
-- Include support files (config, binaries, etc)
-- git push && cap necktie
-
-I use it to:
-
-- gem install, apt-get
-- Configure Nginx, install and setup Unicorn
-- Change memcached configuration from default
-- Setup MySQL to use a mounted (EBS) volume
-- Install and update cron scripts
+Necktie is tool for running configuration tasks: setting up new servers and
+upgrading production servers.  You can use it to manage services, mount
+volumes, change configuration, manage cronjobs, etc.
 
 To install Necktie:
 
   $ gem install necktie --source http://gemcutter.org
+
+To use Necktie:
+1. Write a Necktie file with configurtaion tasks
+2. Include any support files: config, scripts, binaries, etc
+3. git push && cap necktie
+
+Introduction to Necktie: http://blog.labnotes.org/2009/11/04/necktie-dress-to-impress/
 
 
 == Tasking
