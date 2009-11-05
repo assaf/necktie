@@ -27,11 +27,12 @@ module Necktie
           puts "Cloning #{options.git_url} to #{repo}"
           sh "git clone #{options.git_url} #{repo.inspect}", :verbose=>false
         end
-        sh "git checkout #{options.ref}" if options.ref
-        @sha = `git rev-parse --verify HEAD --short`.strip
-        puts "(in #{Dir.pwd}, head is #{@sha}, environment is #{options.env})"
-        syslog :info, "environment is #{options.env}"
         Dir.chdir repo do
+          sh "git checkout #{options.ref}" if options.ref
+          @sha = `git rev-parse --verify HEAD --short`.strip
+          puts "(in #{Dir.pwd}, head is #{@sha}, environment is #{options.env})"
+          syslog :info, "environment is #{options.env}"
+
           load_rakefile
           top_level unless options.pull && ARGV.empty?
           syslog :info, "done"

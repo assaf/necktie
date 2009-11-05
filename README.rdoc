@@ -44,6 +44,7 @@ or necktie.rb), with a list of tasks. For example:
     FileList["gems/*.gem"].each do |gem|
       install_gem gem
     end
+    sh "gem clean"
   end
 
   desc "Setup and start Nginx"
