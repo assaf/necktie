@@ -14,21 +14,23 @@ module Necktie
     def run
       standard_exception_handling do
         init "necktie"
-        puts "(#{options.env})"
         repo = File.expand_path("~/.necktie")
         if File.exist?(repo)
           Dir.chdir repo do
             puts "Pulling latest updates to #{repo} ..."
-            sh "git pull origin #{ENV["BRANCH"] || "master"}", :verbose=>false
+            sh "git pull origin master", :verbose=>false
           end if options.pull
         else
           options.git_url or fail "Need to set Git URL: use --source command line option"
           puts "Cloning #{options.git_url} to #{repo}"
           sh "git clone #{options.git_url} #{repo.inspect}", :verbose=>false
         end
+        sh "git checkout #{options.ref}" if options.ref
+        @sha = `git rev-parse --verify HEAD --short`.strip
+        puts "(in #{Dir.pwd}, head is #{@sha}, environment is #{options.env})"
         Dir.chdir repo do
           load_rakefile
-          top_level
+          top_level unless options.pull && ARGV.empty?
         end
       end
     end
@@ -42,6 +44,9 @@ module Necktie
         ],
         ['--source', '-S GIT_URL', "Git URL to your Necktie repository",
           lambda { |value| options.git_url = value }
+        ],
+        ['--ref', '-R REF', "Checkout specific reference (commit, tag, tree)",
+          lambda { |value| options.ref = value }
         ],
         ['--update', '-U', "Update .necktie directory (git pull)",
           lambda { |value| options.pull = true }

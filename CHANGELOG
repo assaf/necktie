@@ -1,3 +1,11 @@
+1.0.4
+* When used with -U option and no other argument, necktie command updates the
+local repo but does not run any task.
+* Introduced -R option which you can use to checkout specific reference (tag,
+commit, tree).
+* cap necktie task broken up into separate stages, now runs deploy:web:disable
+before running necktie:upgrade.
+
 1.0.3 (2009-11-2)
 * Added Necktie::Version.
 * Added gem clean to rubygems task (examples).
