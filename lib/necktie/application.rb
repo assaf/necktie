@@ -10,7 +10,6 @@ module Necktie
       @rakefiles = ["Necktie", "necktie", "Necktie.rb", "necktie.rb"]
       options.nosearch = true
       options.env = "production"
-      @syslog = Syslog.open("necktie")
     end
 
     def run
@@ -142,7 +141,10 @@ module Necktie
     end
 
     def syslog(level, message)
-      @syslog.send level, "[#{@sha}] #{message.strip.gsub(/%/, '%%')}" # syslog(3) freaks on % (printf)
+      Syslog.open("necktie") do |s|
+        # syslog(3) freaks on % (printf)
+        s.send level, "[#{@sha}] #{message.strip.gsub(/%/, '%%')}"
+      end
     end
 
   end
