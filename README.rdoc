@@ -4,6 +4,8 @@ Necktie is tool for running configuration tasks: setting up new servers and
 upgrading production servers.  You can use it to manage services, mount
 volumes, change configuration, manage cronjobs, etc.
 
+http://19.media.tumblr.com/tumblr_kspcaa4Djr1qzo4cfo1_250.jpg
+
 To install Necktie:
 
   $ gem install necktie --source http://gemcutter.org
