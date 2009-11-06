@@ -7,7 +7,7 @@ module Necktie
   # Template.
   #
   # Loosely based on: http://gist.github.com/215270
-  class ERB < Rake::FileTask
+  class ErbTask < Rake::FileTask
     
     # Path to the input ERB template. This value will default to the value of
     # "#{output}.erb"
@@ -23,14 +23,14 @@ module Necktie
     def execute(*args)
       super
       content = File.read(template)
-      result = ::ERB.new(content, nil, '>').result(binding)
-      File.open(name, 'w') { |f| f.write(result) }
+      result = ERB.new(content, nil, '>').result(binding)
+      write name, result
       puts " * Created ERB output at: #{name}" if application.options.trace
     end
  
     def self.define_task(args)
       task = super
-      if task.is_a?(Necktie::ERB)
+      if task.is_a?(Necktie::ErbTask)
         yield task if block_given?
         task.prerequisites << file(task.template)
       end
@@ -62,5 +62,5 @@ end
 #     t.template = 'config/SomeFile.xml.erb' # Optional - will automatically look here...
 #   end
 def erb(args, &block)
-  Necktie::ERB.define_task(args, &block)
+  Necktie::ErbTask.define_task(args, &block)
 end
