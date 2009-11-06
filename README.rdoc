@@ -208,4 +208,8 @@ Includes Session, created by Ara T. Howard and released under the Ruby License
 http://raa.ruby-lang.org/project/session
 http://www.codeforpeople.com/lib/ruby/session
 
+Atomic file write adapted from Rails.
+
+ERB task adapted from Luke Bayes http://gist.github.com/215270.
+
 Developed for managing EC2 instances for http://apartly.com 
