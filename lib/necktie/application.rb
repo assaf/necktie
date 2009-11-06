@@ -30,7 +30,7 @@ module Necktie
           sh "git checkout #{options.ref}" if options.ref
           @sha = `git rev-parse --verify HEAD --short`.strip
           puts "(in #{Dir.pwd}, head is #{@sha}, environment is #{options.env})"
-          syslog :info, "environment is #{options.env}"
+          syslog :info, "environment is %s", options.env
 
           load_rakefile
           top_level unless options.pull && ARGV.empty?
@@ -140,10 +140,9 @@ module Necktie
       load_imports
     end
 
-    def syslog(level, message)
+    def syslog(level, message, *args)
       Syslog.open("necktie") do |s|
-        # syslog(3) freaks on % (printf)
-        s.send level, "[#{@sha}] #{message.strip.gsub(/%/, '%%')}"
+        s.send level, "[#{@sha}] #{message}", *args
       end
     end
 
@@ -160,10 +159,10 @@ end
 class Rake::Task #:nodoc:
   alias :execute_without_syslog :execute
   def execute(args=nil)
-    application.syslog :info, "execute: #{name}"
+    application.syslog :info, "execute: %s", name
     execute_without_syslog args
   rescue
-    application.syslog :err, "#{$!.backtrace.first}: #{$!.class}: #{$!}"
+    application.syslog :err, "%s: %s: %s", $!.backtrace.first, $!.class.name, $!.to_s
     raise
   end
 end
