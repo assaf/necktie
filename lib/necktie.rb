@@ -3,6 +3,7 @@ require "necktie/files"
 require "necktie/gems"
 require "necktie/services"
 require "necktie/rush"
+require "necktie/erb"
 
 
 # Includes all methods from Necktie::Files and Necktie::Gems methods.

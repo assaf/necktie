@@ -37,9 +37,7 @@ module Necktie::Files
     else
       contents = yield(contents)
     end
-    File.open name, "w" do |f|
-      f.write contents
-    end
+    write name, contents
   end
 end
 
