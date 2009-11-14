@@ -17,9 +17,8 @@ module Necktie
     # temporary directory and renaming the file over to the new location.
     # Ownership and premission are retained if replacing existing file.
     def write(name, contents = nil)
-      contents ||= yield
       temp = Tempfile.new(File.basename(name))
-      temp.write contents
+      temp.write contents || yield
       temp.close
 
       begin
@@ -33,8 +32,8 @@ module Necktie
         File.unlink stat_check
       end
       
-      # Overwrite original file with temp file
-      File.rename(temp.path, name)
+      # Overwrite original file with temp file (tries rename, if that fails, copies).
+      FileUtils.mv temp.path, name
 
       # Set correct permissions on new file
       File.chown stat.uid, stat.gid, name

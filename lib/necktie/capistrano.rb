@@ -13,7 +13,7 @@ Capistrano::Configuration.instance.load do
     desc "[internal] Pull updates from Git"
     task :pull do
       fail "You need to set :necktie_url, <git_url>" unless necktie_url
-      sudo "necktie --source #{necktie_url} --update"
+      sudo "necktie --environment #{fetch(:rails_env, "production")} --source #{necktie_url} --update"
     end
 
     desc "[internal] Run necktie upgrade"
