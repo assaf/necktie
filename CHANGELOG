@@ -1,3 +1,6 @@
+1.0.6 (2009-12-08)
+* Fixed: cap necktie crapping on web enable/disable.
+
 1.0.5 (2009-11-13)
 * Added erb: a file task that creates a file form an ERB template.
 * Changed: The write and update file methods now perform atomic writes (create
