@@ -12,8 +12,10 @@ Capistrano::Configuration.instance.load do
 
     desc "[internal] Pull updates from Git"
     task :pull do
-      fail "You need to set :necktie_url, <git_url>" unless necktie_url
-      sudo "necktie --environment #{fetch(:rails_env, "production")} --source #{necktie_url} --update"
+      url = fetch(:necktie_url, repository) # necktie_url+origin/master or repository+origin/necktie
+      branch = fetch(:necktie_branch, exists?(:necktie_url) ? "master" : "necktie")
+      puts " ** Pulling from #{url} #{branch}"
+      sudo "necktie --environment #{fetch(:rails_env, "production")} --source #{url} --branch #{branch}"
     end
 
     desc "[internal] Run necktie upgrade"
@@ -26,7 +28,6 @@ Capistrano::Configuration.instance.load do
 
     desc "Run necktie on all servers (you can use HOSTS or RAILS env vars)"
     task :default do
-      fail "You need to set :necktie_url, <git_url>" unless necktie_url
       install
       pull
       upgrade

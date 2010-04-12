@@ -10,6 +10,7 @@ module Necktie
       @rakefiles = ["Necktie", "necktie", "Necktie.rb", "necktie.rb"]
       options.nosearch = true
       options.env = "production"
+      options.branch = "necktie"
     end
 
     def run
@@ -19,15 +20,14 @@ module Necktie
         if File.exist?(repo)
           Dir.chdir repo do
             puts "Pulling latest updates to #{repo} ..."
-            sh "git pull origin master", :verbose=>false
-          end if options.pull
+            sh "git pull origin #{options.branch}"
+          end
         else
           options.git_url or fail "Need to set Git URL: use --source command line option"
           puts "Cloning #{options.git_url} to #{repo}"
-          sh "git clone #{options.git_url} #{repo.inspect}", :verbose=>false
+          sh "git clone --branch #{options.branch} #{options.git_url} #{repo.inspect}"
         end
         Dir.chdir repo do
-          sh "git checkout #{options.ref}" if options.ref
           @sha = `git rev-parse --verify HEAD --short`.strip
           puts "(in #{Dir.pwd}, head is #{@sha}, environment is #{options.env})"
           syslog :info, "environment is %s", options.env
@@ -49,8 +49,8 @@ module Necktie
         ['--source', '-S GIT_URL', "Git URL to your Necktie repository",
           lambda { |value| options.git_url = value }
         ],
-        ['--ref', '-R REF', "Checkout specific reference (commit, tag, tree)",
-          lambda { |value| options.ref = value }
+        ['--branch', '-B BRANCH', "Checkout specific branch (default is necktie)",
+          lambda { |value| options.branch = value }
         ],
         ['--update', '-U', "Update .necktie directory (git pull)",
           lambda { |value| options.pull = true }

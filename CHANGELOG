@@ -1,3 +1,26 @@
+1.1.0 (2010-04-12)
+* Changed: Capistrano can pull from one of these locations ($ denotes variable):
+		$necktie_url  master
+		$necktie_url  $necktie_branch
+		$repository   necktie
+		$repository   $necktie_branch
+
+	If you use a separate repository from your main application, set necktie_url
+	to that repository.  The default branch is origin/master.
+
+	If you use the same repository as your main application, the default branch
+	is origin/necktie.  To create an empty origin/necktie branch:
+
+		$ git symbolic-ref HEAD refs/heads/necktie
+		$ rm .git/index
+		$ git clean -fdx
+    $ echo "# My Necktie file" > Necktie
+		$ git add .
+		$ git commit -a -m "First commit"
+		$ git push origin necktie
+* Added: --branch command line options to clone/update given branch.  Defaults to necktie.
+* Removed: No long supports --ref command line options. Sorry.
+
 1.0.6 (2009-12-08)
 * Fixed: cap necktie crapping on web enable/disable.
 

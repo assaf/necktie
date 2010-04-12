@@ -75,11 +75,40 @@ only runs once, before that directory exists.
 
 I use Capistrano to setup new instances and upgrade existing ones.
 
-To use the Necktie task, set the necktie_url variable to the URL of your
-Necktie repository, and require necktie/capistrano. For example:
+You can store your Necktie files in a separate repository, or same repository as
+your application but in a separate branch.
+
+If using a separate repository, set the variable necktie_url to the URL of the
+Necktie repository.  You can also set necktie_branch to particular branch name,
+the default is master.
+
+For example:
 
   require "necktie/capistrano"
   set :necktie_url, "git@example.com:mysetup"
+
+If using the same repository and separate branch, do not set necktie_url.  You
+can set necktie_branch to a particular branch name, the default in this case is
+necktie.  You still need to require "necktie/capistrano".
+
+To create a new empty branch for Necktie that will live in the same repository
+as your application (note: make sure to commit all changes first, or you'll lose
+them):
+
+  $ git symbolic-ref HEAD refs/heads/necktie
+  $ rm .git/index
+  $ git clean -fdx
+  $ echo "# My Necktie file" > Necktie
+  $ git add .
+  $ git commit -a -m "First commit"
+  $ git push origin necktie
+
+Rather than switching back and forth, you can clone this repository within your
+application's working directory:
+
+  $ cd myapp
+  $ git clone -b necktie git:myapp.git .necktie
+  $ ls necktie
 
 Setting up a new EC2 instance:
 
